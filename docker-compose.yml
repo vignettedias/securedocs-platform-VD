@@ -1,0 +1,14 @@
+services:
+  backend:
+    build:
+      context: ./backend
+
+    container_name: securedocs-backend
+
+    ports:
+      - "3000:3000"
+
+    env_file:
+      - ./backend/.env
+
+    restart: unless-stopped
