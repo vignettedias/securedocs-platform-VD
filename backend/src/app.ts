@@ -3,6 +3,7 @@ import cors from "cors";
 import helmet from "helmet";
 import compression from "compression";
 import dotenv from "dotenv";
+import session from "express-session";
 import authRoutes from "./auth/auth.routes";
 
 dotenv.config();
@@ -14,12 +15,27 @@ app.use(cors());
 app.use(compression());
 app.use(express.json());
 
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET!,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: false,
+      httpOnly: true,
+      maxAge: 24 * 60 * 60 * 1000
+    }
+  })
+);
+
 app.get("/health", (_req, res) => {
   res.status(200).json({
     status: "UP"
   });
 });
+
 app.use("/auth", authRoutes);
+
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {

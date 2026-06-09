@@ -8,6 +8,7 @@ const cors_1 = __importDefault(require("cors"));
 const helmet_1 = __importDefault(require("helmet"));
 const compression_1 = __importDefault(require("compression"));
 const dotenv_1 = __importDefault(require("dotenv"));
+const express_session_1 = __importDefault(require("express-session"));
 const auth_routes_1 = __importDefault(require("./auth/auth.routes"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
@@ -15,6 +16,16 @@ app.use((0, helmet_1.default)());
 app.use((0, cors_1.default)());
 app.use((0, compression_1.default)());
 app.use(express_1.default.json());
+app.use((0, express_session_1.default)({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        secure: false,
+        httpOnly: true,
+        maxAge: 24 * 60 * 60 * 1000
+    }
+}));
 app.get("/health", (_req, res) => {
     res.status(200).json({
         status: "UP"
