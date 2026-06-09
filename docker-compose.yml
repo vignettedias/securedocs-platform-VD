@@ -29,3 +29,66 @@ services:
       - backend
 
     restart: unless-stopped
+
+  postgres:
+    image: postgres:17-alpine
+
+    container_name: securedocs-postgres
+
+    environment:
+      POSTGRES_DB: securedocs
+      POSTGRES_USER: securedocs_admin
+      POSTGRES_PASSWORD: securedocs_password
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+
+    container_name: securedocs-redis
+
+    restart: unless-stopped
+
+  authentik-server:
+    image: ghcr.io/goauthentik/server:latest
+
+    container_name: securedocs-authentik-server
+
+    command: server
+
+    env_file:
+      - ./docker/authentik/.env
+
+    depends_on:
+      - postgres
+      - redis
+
+    ports:
+      - "9000:9000"
+
+    restart: unless-stopped
+
+  authentik-worker:
+    image: ghcr.io/goauthentik/server:latest
+
+    container_name: securedocs-authentik-worker
+
+    command: worker
+
+    env_file:
+      - ./docker/authentik/.env
+
+    depends_on:
+      - postgres
+      - redis
+
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
