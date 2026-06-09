@@ -1,5 +1,10 @@
 import { getOidcConfig } from "./oidc";
 
 export async function testDiscovery() {
-  return await getOidcConfig();
+  const config = await getOidcConfig();
+
+  return {
+    issuer:
+      config.serverMetadata().issuer
+  };
 }

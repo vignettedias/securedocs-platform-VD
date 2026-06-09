@@ -1,4 +1,7 @@
-import { discovery } from "openid-client";
+import {
+  discovery,
+  allowInsecureRequests
+} from "openid-client";
 
 let config: any;
 
@@ -13,6 +16,10 @@ export async function getOidcConfig() {
     {
       client_secret:
         process.env.AUTHENTIK_CLIENT_SECRET!
+    },
+    undefined,
+    {
+      execute: [allowInsecureRequests]
     }
   );
 

@@ -1,10 +1,22 @@
 import { Request, Response } from "express";
+import { testDiscovery } from "./auth.service";
 
-export function login(
+export async function login(
   _req: Request,
   res: Response
 ) {
-  res.send("OIDC login route");
+  try {
+    const result =
+      await testDiscovery();
+
+    res.json(result);
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      error: "Discovery failed"
+    });
+  }
 }
 
 export function callback(
