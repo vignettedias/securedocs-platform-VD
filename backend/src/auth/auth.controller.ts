@@ -1,41 +1,120 @@
 import { Request, Response } from "express";
-import { testDiscovery } from "./auth.service";
+import {
+  createLoginUrl,
+  exchangeCode
+} from "./auth.service";
 
 export async function login(
-  _req: Request,
+  req: Request,
   res: Response
 ) {
   try {
     const result =
-      await testDiscovery();
+      await createLoginUrl();
 
-    res.json(result);
+    req.session.state =
+      result.state;
+
+    res.redirect(
+      result.authorizationUrl
+    );
   } catch (error) {
     console.error(error);
 
     res.status(500).json({
-      error: "Discovery failed"
+      error: "Login failed"
     });
   }
 }
 
-export function callback(
-  _req: Request,
+export async function callback(
+  req: Request,
   res: Response
 ) {
-  res.send("OIDC callback route");
+  try {
+    if (
+      req.query.state !==
+      req.session.state
+    ) {
+      return res.status(400).json({
+        error: "Invalid state"
+      });
+    }
+
+    const fullUrl =
+      `${req.protocol}://${req.get("host")}${req.originalUrl}`;
+
+    const tokens =
+      await exchangeCode(
+        fullUrl,
+        req.session.state!
+      );
+
+    const payload = JSON.parse(
+      Buffer.from(
+        tokens.id_token!.split(".")[1],
+        "base64"
+      ).toString()
+    );
+
+    req.session.user = {
+      sub: payload.sub,
+      email: payload.email,
+      name: payload.name
+    };
+
+    req.session.save((err) => {
+      if (err) {
+        console.error(err);
+
+        return res.status(500).json({
+          error: "Session save failed"
+        });
+      }
+
+      res.json({
+        authenticated: true,
+        user: req.session.user
+      });
+    });
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      error: String(error)
+    });
+  }
 }
 
 export function me(
-  _req: Request,
+  req: Request,
   res: Response
 ) {
-  res.send("Current user");
+  if (!req.session.user) {
+    return res.status(401).json({
+      authenticated: false
+    });
+  }
+
+  res.json({
+    authenticated: true,
+    user: req.session.user
+  });
 }
 
 export function logout(
-  _req: Request,
+  req: Request,
   res: Response
 ) {
-  res.send("Logout");
+  req.session.destroy((err) => {
+    if (err) {
+      return res.status(500).json({
+        error: "Logout failed"
+      });
+    }
+
+    res.json({
+      authenticated: false
+    });
+  });
 }

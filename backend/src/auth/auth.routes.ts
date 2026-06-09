@@ -6,9 +6,18 @@ import {
   me,
   logout
 } from "./auth.controller";
+import { requireAuth } from "../middleware/auth.middleware";
 
 const router = Router();
-
+router.get(
+  "/protected",
+  requireAuth,
+  (_req, res) => {
+    res.json({
+      message: "Protected route reached"
+    });
+  }
+);
 router.get("/login", login);
 
 router.get("/callback", callback);
