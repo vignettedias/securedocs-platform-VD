@@ -8,6 +8,7 @@ const cors_1 = __importDefault(require("cors"));
 const helmet_1 = __importDefault(require("helmet"));
 const compression_1 = __importDefault(require("compression"));
 const dotenv_1 = __importDefault(require("dotenv"));
+const auth_routes_1 = __importDefault(require("./auth/auth.routes"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 app.use((0, helmet_1.default)());
@@ -19,6 +20,7 @@ app.get("/health", (_req, res) => {
         status: "UP"
     });
 });
+app.use("/auth", auth_routes_1.default);
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`SecureDocs API running on port ${PORT}`);

@@ -3,6 +3,7 @@ import cors from "cors";
 import helmet from "helmet";
 import compression from "compression";
 import dotenv from "dotenv";
+import authRoutes from "./auth/auth.routes";
 
 dotenv.config();
 
@@ -18,7 +19,7 @@ app.get("/health", (_req, res) => {
     status: "UP"
   });
 });
-
+app.use("/auth", authRoutes);
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
