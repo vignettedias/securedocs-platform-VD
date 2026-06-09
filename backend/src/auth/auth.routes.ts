@@ -1,21 +1,20 @@
 import { Router } from "express";
 
+import {
+  login,
+  callback,
+  me,
+  logout
+} from "./auth.controller";
+
 const router = Router();
 
-router.get("/login", (_req, res) => {
-  res.send("OIDC login route");
-});
+router.get("/login", login);
 
-router.get("/callback", (_req, res) => {
-  res.send("OIDC callback route");
-});
+router.get("/callback", callback);
 
-router.get("/me", (_req, res) => {
-  res.send("Current user");
-});
+router.get("/me", me);
 
-router.post("/logout", (_req, res) => {
-  res.send("Logout");
-});
+router.post("/logout", logout);
 
 export default router;
