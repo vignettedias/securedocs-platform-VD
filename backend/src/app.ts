@@ -5,7 +5,7 @@ import compression from "compression";
 import dotenv from "dotenv";
 import session from "express-session";
 import authRoutes from "./auth/auth.routes";
-
+import { prisma } from "./config/prisma";
 dotenv.config();
 
 const app = express();
@@ -28,6 +28,13 @@ app.use(
   })
 );
 
+
+app.get("/db-test", async (_req, res) => {
+  const result =
+    await prisma.user.findMany();
+
+  res.json(result);
+});
 app.get("/health", (_req, res) => {
   res.status(200).json({
     status: "UP"

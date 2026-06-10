@@ -1,4 +1,6 @@
 import { Request, Response } from "express";
+import { prisma } from "../config/prisma";
+
 import {
   createLoginUrl,
   exchangeCode
@@ -57,10 +59,26 @@ export async function callback(
       ).toString()
     );
 
+    const dbUser =
+      await prisma.user.upsert({
+        where: {
+          oidcSub: payload.sub
+        },
+        update: {
+          email: payload.email,
+          name: payload.name
+        },
+        create: {
+          oidcSub: payload.sub,
+          email: payload.email,
+          name: payload.name
+        }
+      });
+
     req.session.user = {
-      sub: payload.sub,
-      email: payload.email,
-      name: payload.name
+      sub: dbUser.oidcSub,
+      email: dbUser.email ?? undefined,
+      name: dbUser.name ?? undefined
     };
 
     req.session.save((err) => {
