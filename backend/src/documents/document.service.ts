@@ -18,6 +18,21 @@ export async function createDocument(
   });
 }
 
+export async function createUploadedDocument(
+  ownerId: string,
+  file: Express.Multer.File
+) {
+  return prisma.document.create({
+    data: {
+      ownerId,
+      filename: file.originalname,
+      storagePath: file.path,
+      mimeType: file.mimetype,
+      fileSize: file.size
+    }
+  });
+}
+
 export async function getDocumentsByOwner(
   ownerId: string
 ) {

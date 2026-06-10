@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 
 import {
   createDocument,
+  createUploadedDocument,
   getDocumentsByOwner,
   getDocumentById,
   deleteDocument
@@ -43,6 +44,35 @@ export async function create(
   }
 }
 
+export async function uploadDocument(
+  req: Request,
+  res: Response
+) {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        error: "No file uploaded"
+      });
+    }
+
+    const document =
+      await createUploadedDocument(
+        req.session.user!.id,
+        req.file
+      );
+
+    res.status(201).json(
+      document
+    );
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      error: "Upload failed"
+    });
+  }
+}
+
 export async function list(
   req: Request,
   res: Response
@@ -72,12 +102,18 @@ export async function getOne(
 ) {
   try {
     const id =
-  Array.isArray(req.params.id)
-    ? req.params.id[0]
-    : req.params.id;
+      Array.isArray(req.params.id)
+        ? req.params.id[0]
+        : req.params.id;
 
-const document =
-  await getDocumentById(id);
+    if (!id) {
+      return res.status(400).json({
+        error: "Document ID required"
+      });
+    }
+
+    const document =
+      await getDocumentById(id);
 
     if (!document) {
       return res.status(404).json({
@@ -110,12 +146,18 @@ export async function remove(
 ) {
   try {
     const id =
-  Array.isArray(req.params.id)
-    ? req.params.id[0]
-    : req.params.id;
+      Array.isArray(req.params.id)
+        ? req.params.id[0]
+        : req.params.id;
 
-const document =
-  await getDocumentById(id);
+    if (!id) {
+      return res.status(400).json({
+        error: "Document ID required"
+      });
+    }
+
+    const document =
+      await getDocumentById(id);
 
     if (!document) {
       return res.status(404).json({
