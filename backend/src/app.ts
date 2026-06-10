@@ -5,7 +5,10 @@ import compression from "compression";
 import dotenv from "dotenv";
 import session from "express-session";
 import authRoutes from "./auth/auth.routes";
+import documentRoutes from "./documents/document.routes";
+
 import { prisma } from "./config/prisma";
+
 dotenv.config();
 
 const app = express();
@@ -42,7 +45,10 @@ app.get("/health", (_req, res) => {
 });
 
 app.use("/auth", authRoutes);
-
+app.use(
+  "/documents",
+  documentRoutes
+);
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {

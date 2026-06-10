@@ -76,10 +76,11 @@ export async function callback(
       });
 
     req.session.user = {
-      sub: dbUser.oidcSub,
-      email: dbUser.email ?? undefined,
-      name: dbUser.name ?? undefined
-    };
+  id: dbUser.id,
+  sub: dbUser.oidcSub,
+  email: dbUser.email ?? undefined,
+  name: dbUser.name ?? undefined
+};
 
     req.session.save((err) => {
       if (err) {

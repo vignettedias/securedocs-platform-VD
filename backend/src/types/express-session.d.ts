@@ -4,6 +4,7 @@ declare module "express-session" {
   interface SessionData {
     state?: string;
     user?: {
+      id: string;
       sub: string;
       email?: string;
       name?: string;

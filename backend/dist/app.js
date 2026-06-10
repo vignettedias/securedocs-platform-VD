@@ -10,6 +10,7 @@ const compression_1 = __importDefault(require("compression"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const express_session_1 = __importDefault(require("express-session"));
 const auth_routes_1 = __importDefault(require("./auth/auth.routes"));
+const document_routes_1 = __importDefault(require("./documents/document.routes"));
 const prisma_1 = require("./config/prisma");
 dotenv_1.default.config();
 const app = (0, express_1.default)();
@@ -37,6 +38,7 @@ app.get("/health", (_req, res) => {
     });
 });
 app.use("/auth", auth_routes_1.default);
+app.use("/documents", document_routes_1.default);
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`SecureDocs API running on port ${PORT}`);
