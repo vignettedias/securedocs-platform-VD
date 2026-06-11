@@ -8,6 +8,10 @@ import {
   deleteDocument
 } from "./document.service";
 
+import {
+  encryptFile
+} from "../services/fernet.service";
+
 export async function create(
   req: Request,
   res: Response
@@ -55,20 +59,29 @@ export async function uploadDocument(
       });
     }
 
+    const encryptedResult =
+      await encryptFile(
+        req.file.path
+      );
+
     const document =
       await createUploadedDocument(
         req.session.user!.id,
         req.file
       );
 
-    res.status(201).json(
-      document
-    );
+    res.status(201).json({
+      document,
+      encryption:
+        encryptedResult
+    });
+
   } catch (error) {
     console.error(error);
 
     res.status(500).json({
-      error: "Upload failed"
+      error:
+        "Upload and encryption failed"
     });
   }
 }
