@@ -3,9 +3,8 @@ import FormData from "form-data";
 import fs from "fs";
 
 const FERNET_URL =
-  process.env.FERNET_URL ||
-  "http://host.docker.internal:3000";
-
+  process.env.FERNET_SERVICE_URL ||
+  "http://fernet-rest-service:4000";
 const API_KEY =
   process.env.FERNET_API_KEY ||
   "fernet-dev-api-key";
@@ -13,26 +12,39 @@ const API_KEY =
 export async function encryptFile(
   filePath: string
 ) {
-  const formData =
-    new FormData();
+  try {
+    const formData =
+      new FormData();
 
-  formData.append(
-    "file",
-    fs.createReadStream(filePath)
-  );
-
-  const response =
-    await axios.post(
-      `${FERNET_URL}/api/v1/encrypt-file`,
-      formData,
-      {
-        headers: {
-          ...formData.getHeaders(),
-          "x-api-key":
-            API_KEY
-        }
-      }
+    formData.append(
+      "file",
+      fs.createReadStream(filePath)
     );
 
-  return response.data;
+    const response =
+      await axios.post(
+        `${FERNET_URL}/api/v1/encrypt-file`,
+        formData,
+        {
+          headers: {
+            ...formData.getHeaders(),
+            "x-api-key": API_KEY
+          }
+        }
+      );
+
+    console.log(
+      "FERNET RESPONSE:",
+      JSON.stringify(response.data, null, 2)
+    );
+
+    return response.data;
+  } catch (error: any) {
+    console.error(
+      "FERNET ERROR:",
+      error.response?.data || error.message
+    );
+
+    throw error;
+  }
 }

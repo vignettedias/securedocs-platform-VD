@@ -34,6 +34,9 @@ model Document {
 
   isEncrypted Boolean  @default(false)
 
+  encryptedPath String?
+  encryptedAt   DateTime?
+
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }

@@ -1,4 +1,6 @@
 import { prisma } from "../config/prisma";
+import { encryptFile }
+  from "../services/fernet.service";
 
 export async function createDocument(
   ownerId: string,
@@ -22,13 +24,37 @@ export async function createUploadedDocument(
   ownerId: string,
   file: Express.Multer.File
 ) {
+  const encryption =
+    await encryptFile(
+      file.path
+    );
+
   return prisma.document.create({
     data: {
       ownerId,
-      filename: file.originalname,
-      storagePath: file.path,
-      mimeType: file.mimetype,
-      fileSize: file.size
+
+      filename:
+        file.originalname,
+
+      storagePath:
+        file.path,
+
+      mimeType:
+        file.mimetype,
+
+      fileSize:
+        file.size,
+
+      isEncrypted:
+        encryption.success === true,
+
+      encryptedPath:
+        encryption.encryptedPath,
+
+      encryptedAt:
+        encryption.success
+          ? new Date()
+          : null
     }
   });
 }

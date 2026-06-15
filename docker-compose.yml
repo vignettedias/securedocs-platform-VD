@@ -6,6 +6,11 @@ services:
 
     container_name: securedocs-backend
 
+    depends_on:
+      - postgres
+      - redis
+      - fernet-rest-service
+
     expose:
       - "3000"
 
@@ -14,6 +19,20 @@ services:
 
     volumes:
       - ./backend/uploads:/app/uploads
+
+    restart: unless-stopped
+
+  fernet-rest-service:
+    build:
+      context: ./fernet-file-service/fernet-rest-service
+
+    container_name: securedocs-fernet
+
+    env_file:
+      - ./fernet-file-service/fernet-rest-service/.env
+
+    expose:
+      - "4000"
 
     restart: unless-stopped
 
