@@ -1,4 +1,6 @@
 import { Request, Response } from "express";
+import fs from "fs";
+import path from "path";
 
 import {
   createDocument,
@@ -200,5 +202,68 @@ export async function remove(
     res.status(500).json({
       error: "Failed to delete document"
     });
+  }
+}
+export async function downloadDocument(
+  req: Request,
+  res: Response
+) {
+  try {
+
+    const id =
+      Array.isArray(req.params.id)
+        ? req.params.id[0]
+        : req.params.id;
+
+    if (!id) {
+      return res.status(400).json({
+        error: "Document ID required"
+      });
+    }
+
+    const document =
+      await getDocumentById(id);
+
+    if (!document) {
+      return res.status(404).json({
+        error: "Document not found"
+      });
+    }
+
+    if (
+      document.ownerId !==
+      req.session.user!.id
+    ) {
+      return res.status(403).json({
+        error: "Forbidden"
+      });
+    }
+
+    const filePath =
+      path.resolve(
+        document.storagePath
+      );
+
+    if (
+      !fs.existsSync(filePath)
+    ) {
+      return res.status(404).json({
+        error: "File missing"
+      });
+    }
+
+    return res.download(
+      filePath,
+      document.filename
+    );
+
+  } catch (error) {
+
+    console.error(error);
+
+    return res.status(500).json({
+      error: "Download failed"
+    });
+
   }
 }
