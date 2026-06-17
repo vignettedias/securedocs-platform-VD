@@ -11,7 +11,8 @@ import {
 } from "./document.service";
 
 import {
-  encryptFile
+  encryptFile,
+  decryptFile
 } from "../services/fernet.service";
 
 export async function create(
@@ -263,6 +264,74 @@ export async function downloadDocument(
 
     return res.status(500).json({
       error: "Download failed"
+    });
+
+  }
+}
+export async function decryptDocument(
+  req: Request,
+  res: Response
+) {
+  try {
+
+    const id =
+      Array.isArray(req.params.id)
+        ? req.params.id[0]
+        : req.params.id;
+
+    if (!id) {
+      return res.status(400).json({
+        error: "Document ID required"
+      });
+    }
+
+    const document =
+      await getDocumentById(id);
+
+    if (!document) {
+      return res.status(404).json({
+        error: "Document not found"
+      });
+    }
+
+    if (
+      document.ownerId !==
+      req.session.user!.id
+    ) {
+      return res.status(403).json({
+        error: "Forbidden"
+      });
+    }
+
+    if (
+      !document.encryptedPath
+    ) {
+      return res.status(400).json({
+        error:
+          "Document is not encrypted"
+      });
+    }
+
+    const encryptedFileName =
+      path.basename(
+        document.encryptedPath
+      );
+
+    const result =
+      await decryptFile(
+        encryptedFileName,
+        document.filename
+      );
+
+    return res.json(result);
+
+  } catch (error) {
+
+    console.error(error);
+
+    return res.status(500).json({
+      error:
+        "Decryption failed"
     });
 
   }

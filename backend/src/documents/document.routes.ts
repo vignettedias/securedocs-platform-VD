@@ -6,7 +6,8 @@ import {
   getOne,
   remove,
   uploadDocument,
-  downloadDocument
+  downloadDocument,
+  decryptDocument
 } from "./document.controller";
 
 import { requireAuth } from "../middleware/auth.middleware";
@@ -28,6 +29,8 @@ router.post(
 router.get("/", list);
 
 router.get("/:id/download",downloadDocument);
+
+router.post("/:id/decrypt",decryptDocument);
 
 router.get("/:id", getOne);
 

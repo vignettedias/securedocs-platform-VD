@@ -48,3 +48,45 @@ export async function encryptFile(
     throw error;
   }
 }
+export async function decryptFile(
+  encryptedFileName: string,
+  originalFileName: string
+) {
+  try {
+
+    const response =
+      await axios.post(
+        `${FERNET_URL}/api/v1/decrypt-file`,
+        {
+          encryptedFileName,
+          originalFileName
+        },
+        {
+          headers: {
+            "x-api-key": API_KEY
+          }
+        }
+      );
+
+    console.log(
+      "FERNET DECRYPT RESPONSE:",
+      JSON.stringify(
+        response.data,
+        null,
+        2
+      )
+    );
+
+    return response.data;
+
+  } catch (error: any) {
+
+    console.error(
+      "FERNET DECRYPT ERROR:",
+      error.response?.data ||
+      error.message
+    );
+
+    throw error;
+  }
+}
