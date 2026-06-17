@@ -64,17 +64,14 @@ export async function decryptFile(
         {
           headers: {
             "x-api-key": API_KEY
-          }
+          },
+
+          responseType: "stream"
         }
       );
 
     console.log(
-      "FERNET DECRYPT RESPONSE:",
-      JSON.stringify(
-        response.data,
-        null,
-        2
-      )
+      "FERNET STREAM RECEIVED"
     );
 
     return response.data;

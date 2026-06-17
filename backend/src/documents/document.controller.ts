@@ -317,13 +317,38 @@ export async function decryptDocument(
         document.encryptedPath
       );
 
-    const result =
+    const stream =
       await decryptFile(
         encryptedFileName,
         document.filename
       );
 
-    return res.json(result);
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="${document.filename}"`
+    );
+
+    res.setHeader(
+      "Content-Type",
+      "application/octet-stream"
+    );
+stream.on(
+  "error",
+  (err) => {
+    console.error(
+      "STREAM ERROR:",
+      err
+    );
+
+    if (!res.headersSent) {
+      res.status(500).json({
+        error:
+          "Stream failed"
+      });
+    }
+  }
+);
+    stream.pipe(res);
 
   } catch (error) {
 
